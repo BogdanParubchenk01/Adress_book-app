@@ -97,6 +97,7 @@ export const App: React.FC = () => {
   return (
     <>
       <div
+        data-test={"phonebook-main"}
         className="
       bg-indigo-400 text-start pl-5 py-[100px] box-border h-[300px] rounded-xl text-5xl mb-4
       "
