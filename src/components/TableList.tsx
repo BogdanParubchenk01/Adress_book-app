@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserItem } from './UserItem';
 import { User } from '../types/User';
 import { NewUser } from '../types/NewUser';
@@ -8,9 +8,22 @@ interface Props {
   checkUser: (data: NewUser) => void,
   activeForm: (choise: boolean) => void,
   setId: (id: number) => void,
+  setDeleteId: (id: number) => void,
 }
 
-export const TableList: React.FC<Props> = ({ visibaleUsers, checkUser, activeForm, setId }) => {
+export const TableList: React.FC<Props> = ({ visibaleUsers, checkUser, activeForm, setId, setDeleteId }) => {
+  const itemsPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const lastIndex = currentPage * itemsPerPage;
+  const firstIndex = lastIndex - itemsPerPage;
+
+  const currentUsers = visibaleUsers.slice(firstIndex, lastIndex);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div className="flex flex-col">
       <div className="overflow-x-auto">
@@ -64,13 +77,25 @@ export const TableList: React.FC<Props> = ({ visibaleUsers, checkUser, activeFor
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {visibaleUsers.map(user => (
-                  <UserItem key={user.id} user={user} checkUser={checkUser} activeForm={activeForm} setId={setId}/>
+                {currentUsers.map(user => (
+                  <UserItem key={user.id} user={user} checkUser={checkUser} activeForm={activeForm} setId={setId} setDeleteId={setDeleteId}/>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
+      </div>
+
+      <div className="flex justify-center mt-4">
+        {Array.from({ length: Math.ceil(visibaleUsers.length / itemsPerPage) }, (_, index) => (
+          <button
+            key={index}
+            onClick={() => handlePageChange(index + 1)}
+            className={`mx-1 px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'}`}
+          >
+            {index + 1}
+          </button>
+        ))}
       </div>
     </div>
   )

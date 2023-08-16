@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { User } from './types/User';
-import { getAllUsers, patchUser } from './api/users';
+import { deleteUser, getAllUsers, patchUser } from './api/users';
 import { TableList } from './components/TableList';
 import { UsersFilter } from './components/UsersFiltert';
 import { SortType } from './types/SortType';
 import { UserForm } from './components/UserForm';
 import { Loader } from './components/Loader';
 import { NewUser } from './types/NewUser';
+import { patchData } from './utils/patchData';
+import { ConfirmDialog } from './components/ConfirmDialog';
 
 type DataSort = {
   query: string,
@@ -56,6 +58,7 @@ export const App: React.FC = () => {
   const [userPatch, setUserPatch] = useState<NewUser | null>(null)
   const [isActive, setIsActive] = useState(false);
   const [userId, setUserId] = useState(-1);
+  const [deleteId, setDeleteId] = useState(0);
 
   useEffect(() => {
     const loadedUsers = async () => {
@@ -73,26 +76,36 @@ export const App: React.FC = () => {
     loadedUsers();
   }, [])
 
+  const visibleUsers = userFilter(users, { query, sortType })
+
+  const handleDeleteUser = async (id: number) => {
+    try {
+      await deleteUser(id);
+
+      setUsers(users.filter(user => user.id !== id));
+
+      console.log(users);
+      setDeleteId(0);
+    } catch {
+      throw new Error();
+
+    }
+  }
+
 
   const handlePatchUser = async (data: NewUser, id: number) => {
     try {
       console.log(data);
 
-      const newData = users.map(user =>
-        user.id === id ? Object.assign({}, user, data) : user
-      );
+      await patchUser(id, patchData(data));
 
-      await patchUser(id, data);
-
-      setUsers(newData)
+      setUsers(users.map(user =>
+        user.id === id ? Object.assign({}, user, patchData(data)) : user
+      ))
     } catch {
       throw new Error();
     }
   }
-
-  useEffect(() => {
-    setUsers(userFilter(users, { query, sortType }))
-  }, [query, sortType, users])
 
   return (
     <>
@@ -107,14 +120,20 @@ export const App: React.FC = () => {
       {!isLoad
         ? <>
           <UsersFilter textChange={setQuery} sortChange={setSortType} formChange={setFormActive} />
-          <TableList visibaleUsers={users} checkUser={setUserPatch} activeForm={setIsActive} setId={setUserId} />
+          <TableList
+            visibaleUsers={visibleUsers}
+            checkUser={setUserPatch}
+            activeForm={setIsActive}
+            setId={setUserId}
+            setDeleteId={setDeleteId}
+          />
           {formActive
             && <UserForm
               isActive={formActive}
               formActive={setFormActive}
               newId={newId}
               usersChange={setUsers}
-              users={users}
+              users={visibleUsers}
             />
           }
 
@@ -127,6 +146,8 @@ export const App: React.FC = () => {
               id={userId}
             />
           }
+
+          {!!deleteId && <ConfirmDialog deleteId={deleteId} handleDelete={handleDeleteUser} setDeleteId={setDeleteId} />}
         </>
         : <Loader />
       }

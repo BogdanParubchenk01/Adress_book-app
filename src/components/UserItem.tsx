@@ -8,9 +8,10 @@ interface Props {
   checkUser: (data: NewUser) => void,
   activeForm: (choise: boolean) => void,
   setId: (id: number) => void,
+  setDeleteId: (id: number) => void,
 }
 
-export const UserItem: React.FC<Props> = ({ user, checkUser, activeForm, setId }) => {
+export const UserItem: React.FC<Props> = ({ user, checkUser, activeForm, setId, setDeleteId}) => {
 
   const dataUser: NewUser = {
     firstname: user.name.firstname,
@@ -26,13 +27,18 @@ export const UserItem: React.FC<Props> = ({ user, checkUser, activeForm, setId }
     activeForm(true);
   }
 
+  const handleDelete = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault();
+    setDeleteId(user.id);
+  }
+
   return (
     <>
       <tr>
-        <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap text-left">
+        <td className="px-1 py-4 text-sm font-medium text-gray-800 whitespace-nowrap text-center box-border w-5">
           {user.id}
         </td>
-        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap text-left">{user.name.firstname}</td>
+        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap text-left ">{user.name.firstname}</td>
         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap text-left">{user.name.lastname}</td>
         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap text-left">
           {user.phone}
@@ -49,12 +55,15 @@ export const UserItem: React.FC<Props> = ({ user, checkUser, activeForm, setId }
           </button>
         </td>
         <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-          <button className="p-2 text-white rounded bg-red-500">
+          <button 
+          className="p-2 text-white rounded bg-red-500"
+          onClick={handleDelete}
+          >
             Delete
           </button>
         </td>
       </tr>
     </>
   )
-}
+};
 

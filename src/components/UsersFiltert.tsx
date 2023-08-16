@@ -18,7 +18,6 @@ export const UsersFilter: React.FC<Props> = ({ textChange, sortChange, formChang
     sortChange(SortType.ALL);
     setText('');
     textChange('');
-
   }
 
   return (
