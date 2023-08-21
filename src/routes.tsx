@@ -1,13 +1,16 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, BrowserRouter } from 'react-router-dom';
+import React from "react";
 
-import { Login } from 'login-app';
 import App from './App';
+import LoginApp from 'login-app';
 
 export const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path="/phonebook" element={<App />} />
-      <Route path="/login" element={<Login />} />
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/login" element={<LoginApp homepage={"/"} />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
